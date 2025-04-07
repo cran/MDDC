@@ -41,10 +41,12 @@
 #'
 #' @return A list with the following components:
 #' \itemize{
-#' \item \code{mc_pval} returns the p values for each cell in the second step.
-#' For cells with a count greater than five, the p values are obtained
-#' via MC method. For cells with a count less than or equal to five,
-#' the p values are obtained via Fisher's exact tests.
+#' \item \code{mc_pval} returns the p values for each cell in the second step
+#' using the Monte Carlo method (Algorithm 3 of Liu et al.(2024)).
+#' \item \code{fisher_pval} returns the p-values for each cell in the step 2 of
+#' the algorithm, calculated using the Monte Carlo method for cells with count
+#' greater than five, and Fisher’s exact test for cells with count less than or
+#' equal to five.
 #' \item \code{mc_signal} returns the signals with a count greater than five and
 #' identified in the second step by MC method. 1 indicates signals, 0 for non
 #' signal.
@@ -60,6 +62,12 @@
 #' \code{corr_signal_adj_pval}, and what threshold for p values should be used
 #' (for example, 0.05). Please see the example below.
 #' }
+#'
+#' @references
+#' Liu, A., Mukhopadhyay, R., and Markatou, M. (2024). MDDC: An R and Python
+#' package for adverse event identification in pharmacovigilance data.
+#' arXiv preprint. arXiv:2410.01168
+#'
 #' @export
 #'
 #' @examples
@@ -128,6 +136,10 @@ mddc_mc <- function(
     }
   )), ncol = n_col, byrow = FALSE))
 
+  p_val_mat_mc <- p_val_mat
+  p_val_mat_mc[is.na(p_val_mat_mc)] <- 1
+  row.names(p_val_mat_mc) <- row_names
+  colnames(p_val_mat_mc) <- col_names
 
   for (j in seq_len(n_col)) {
     for (i in which((contin_table[, j] < 6) & (contin_table[, j] >
@@ -308,12 +320,12 @@ mddc_mc <- function(
   rownames(r_adj_pval) <- row_names
 
   list_mat <- list(
-    p_val_mat, signal_mat, second_signal_mat, r_pval,
+    p_val_mat_mc, p_val_mat, signal_mat, second_signal_mat, r_pval,
     r_adj_pval
   )
 
   names(list_mat) <- c(
-    "mc_pval", "mc_signal", "fisher_signal", "corr_signal_pval",
+    "mc_pval", "fisher_pval", "mc_signal", "fisher_signal", "corr_signal_pval",
     "corr_signal_adj_pval"
   )
 

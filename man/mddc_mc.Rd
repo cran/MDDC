@@ -66,10 +66,12 @@ If NULL, no seed is set.}
 \value{
 A list with the following components:
 \itemize{
-\item \code{mc_pval} returns the p values for each cell in the second step.
-For cells with a count greater than five, the p values are obtained
-via MC method. For cells with a count less than or equal to five,
-the p values are obtained via Fisher's exact tests.
+\item \code{mc_pval} returns the p values for each cell in the second step
+using the Monte Carlo method (Algorithm 3 of Liu et al.(2024)).
+\item \code{fisher_pval} returns the p-values for each cell in the step 2 of
+the algorithm, calculated using the Monte Carlo method for cells with count
+greater than five, and Fisher’s exact test for cells with count less than or
+equal to five.
 \item \code{mc_signal} returns the signals with a count greater than five and
 identified in the second step by MC method. 1 indicates signals, 0 for non
 signal.
@@ -105,4 +107,9 @@ signal_step2 <- mc_res$mc_signal
 # In this example, cells with p values less than 0.05 are
 # identified as signals
 signal_step5 <- (mc_res$corr_signal_pval < 0.05) * 1
+}
+\references{
+Liu, A., Mukhopadhyay, R., and Markatou, M. (2024). MDDC: An R and Python
+package for adverse event identification in pharmacovigilance data.
+arXiv preprint. arXiv:2410.01168
 }
